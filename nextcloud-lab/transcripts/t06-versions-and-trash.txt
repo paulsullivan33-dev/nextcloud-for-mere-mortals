@@ -1,0 +1,43 @@
+Overwrite the recipe with a changed copy, and the old
+one is kept — first ask the server for the file's id,
+then ask the versions door about that id:
+
+$ curl -u ruth:<redacted> -X PROPFIND -H "Depth: 0" \
+    --data '<propfind ...><prop><oc:fileid/></prop></propfind>' \
+    $D/pancake-recipe.txt
+<oc:fileid>83</oc:fileid>      (in the response)
+
+$ curl -u ruth:<redacted> -T pancake-recipe-v2.txt $D/pancake-recipe.txt
+HTTP 204      (overwritten)
+
+$ curl -u ruth:<redacted> -X PROPFIND -H "Depth: 1" \
+    http://127.0.0.1:8090/remote.php/dav/versions/ruth/versions/83
+/remote.php/dav/versions/ruth/versions/83/1792716755
+/remote.php/dav/versions/ruth/versions/83/1792716785
+(two stored versions, named by the minute they were kept)
+
+And on the server's disk, in the data folder:
+ruth/files_versions/pancake-recipe.txt.v1792716755
+
+(There is no "occ versions:list" — asking occ answers
+"Command versions:list is not defined" and suggests
+versions:cleanup and versions:expire, the two commands
+that prune old versions.)
+
+Delete the file, and it moves to the trash instead of
+vanishing:
+
+$ curl -u ruth:<redacted> -X DELETE $D/pancake-recipe.txt
+HTTP 204
+$ curl -u ruth:<redacted> $D/pancake-recipe.txt
+HTTP 404
+
+$ curl -u ruth:<redacted> -X PROPFIND -H "Depth: 1" \
+    http://127.0.0.1:8090/remote.php/dav/trashbin/ruth/trash
+/remote.php/dav/trashbin/ruth/trash/pancake-recipe.txt.d1792716787
+(the .d<digits> tail is the minute it was deleted)
+
+On disk, the trash keeps the file — and its old version
+travelled with it:
+ruth/files_trashbin/files/pancake-recipe.txt.d1792716787
+ruth/files_trashbin/versions/pancake-recipe.txt.v1792716755.d1792716787

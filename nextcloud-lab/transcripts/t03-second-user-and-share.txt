@@ -1,0 +1,48 @@
+A second account, made from the command line. Note the
+--password-from-env flag: without it, occ stops and asks
+interactively, which hangs a script (chapter 15).
+
+$ OC_PASS='<redacted>' php occ user:add --password-from-env \
+    --display-name="Theo Marchetti" --email=theo@example.com theo
+The account "theo" was created successfully
+Display name set to "Theo Marchetti"
+Welcome email sent to theo@example.com
+(the welcome mail goes nowhere in this lab — there is no
+mail server; the account works regardless)
+
+Theo's home before anything is shared with him
+(PROPFIND /remote.php/dav/files/theo/, names only):
+Nextcloud Manual.pdf, Templates/, Readme.md, Photos/,
+Documents/, Reasons to use Nextcloud.pdf, Nextcloud.png,
+Nextcloud intro.mp4 — the factory skeleton, and none of
+Ruth's files. Accounts are private by default.
+
+Ruth shares one file with him, through the OCS API —
+the same call the web page's Share button makes:
+
+$ curl -u ruth:<redacted> -H "OCS-APIRequest: true" \
+    -H "Accept: application/json" -X POST \
+    http://127.0.0.1:8090/ocs/v2.php/apps/files_sharing/api/v1/shares \
+    --data-urlencode "path=/book-club-notes.txt" \
+    --data-urlencode "shareType=0" --data-urlencode "shareWith=theo"
+{
+  "ocs": {
+    "meta": { "status": "ok", "statuscode": 200, "message": "OK" },
+    "data": {
+      "id": "1",
+      "share_type": 0,
+      "uid_owner": "ruth",
+      "permissions": 19,
+      "path": "/book-club-notes.txt",
+      "item_type": "file",
+      "mimetype": "text/plain",
+      "item_size": 212,
+      "share_with": "theo",
+      "share_with_displayname": "Theo Marchetti"
+      (response trimmed)
+    }
+  }
+}
+
+Theo's home afterwards (same PROPFIND) — one new line:
+/remote.php/dav/files/theo/book-club-notes.txt

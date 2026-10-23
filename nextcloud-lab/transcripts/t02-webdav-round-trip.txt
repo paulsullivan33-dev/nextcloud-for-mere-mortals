@@ -1,0 +1,32 @@
+WebDAV is plain HTTP with extra verbs. The lab drove it
+with curl and the admin's own credentials
+(D=http://127.0.0.1:8090/remote.php/dav/files/ruth):
+
+$ curl -u ruth:<redacted> -T pancake-recipe-v1.txt $D/pancake-recipe.txt
+HTTP 201      (created)
+
+$ curl -u ruth:<redacted> -T book-club-notes.txt $D/book-club-notes.txt
+HTTP 201
+
+$ curl -u ruth:<redacted> -X PROPFIND -H "Depth: 1" $D/
+(names in the listing, trimmed)
+/remote.php/dav/files/ruth/
+/remote.php/dav/files/ruth/Nextcloud%20Manual.pdf
+/remote.php/dav/files/ruth/Templates/
+/remote.php/dav/files/ruth/Reasons%20to%20use%20Nextcloud.pdf
+/remote.php/dav/files/ruth/Readme.md
+/remote.php/dav/files/ruth/Photos/
+/remote.php/dav/files/ruth/Documents/
+/remote.php/dav/files/ruth/Nextcloud%20intro.mp4
+/remote.php/dav/files/ruth/pancake-recipe.txt
+/remote.php/dav/files/ruth/book-club-notes.txt
+(the PDFs, Photos/, Documents/ and Templates/ are the
+skeleton files every new account starts with)
+
+$ curl -u ruth:<redacted> $D/pancake-recipe.txt -o downloaded-recipe.txt
+HTTP 200
+
+$ sha256sum pancake-recipe-v1.txt downloaded-recipe.txt
+15df1807ad27aa20776f431620ed9efe0a3de62999b2362bb3ef2fa6c843ed22  pancake-recipe-v1.txt
+15df1807ad27aa20776f431620ed9efe0a3de62999b2362bb3ef2fa6c843ed22  downloaded-recipe.txt
+(byte-identical: what went up is what came back)

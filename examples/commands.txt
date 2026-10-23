@@ -1,0 +1,60 @@
+Nextcloud commands — the cheat sheet
+====================================================================
+The server in this guide is served on PHP's built-in
+server at 127.0.0.1:8090 (chapter 3 explains why, and
+what changes under Apache). Substitute your address.
+
+First look
+    curl http://127.0.0.1:8090/status.php
+        -> {"installed":true,...,"versionstring":"35.0.2",...}
+    php occ status
+    php occ check
+
+Installing (chapter 3)
+    sha256sum nextcloud-*.tar.bz2     compare with the
+                                      project's .sha256 file
+    php occ maintenance:install --database mysql \
+        --database-name nextcloud --database-host 127.0.0.1 \
+        --database-user nextcloud --database-pass <...> \
+        --admin-user ruth --admin-pass <...> \
+        --data-dir /path/to/data
+    php occ config:system:set trusted_domains 1 \
+        --value=your.server.name
+
+Users (chapter 9)
+    OC_PASS='<...>' php occ user:add --password-from-env \
+        --display-name="Theo Marchetti" \
+        --email=theo@example.com theo
+    php occ user:list
+    php occ user:info theo
+
+WebDAV with curl (chapter 6) — D is the door:
+    D=http://127.0.0.1:8090/remote.php/dav/files/ruth
+    curl -u ruth:<...> -T file.txt $D/file.txt     upload
+    curl -u ruth:<...> -X PROPFIND -H "Depth: 1" $D/
+    curl -u ruth:<...> $D/file.txt -o file.txt     download
+    curl -u ruth:<...> -X DELETE $D/file.txt       to trash
+
+Sharing through the OCS API (chapter 8)
+    POST /ocs/v2.php/apps/files_sharing/api/v1/shares
+      header: OCS-APIRequest: true
+      to a user:  path=/file.txt shareType=0 shareWith=theo
+      to a link:  path=/file.txt shareType=3
+    GET  http://127.0.0.1:8090/s/<token>           the link
+    GET  .../s/<token>/download                    its file
+
+CalDAV (chapter 7)
+    curl -u ruth:<...> -T event.ics \
+      http://127.0.0.1:8090/remote.php/dav/calendars/\
+ruth/personal/event.ics
+
+Housekeeping (chapters 10 and 11)
+    php occ integrity:check-core
+    php occ setupchecks
+    php occ background:cron && php cron.php
+    php occ maintenance:mode --on     (before backups
+    php occ maintenance:mode --off     and upgrades)
+    mysqldump --single-transaction nextcloud > nextcloud.sql
+    php occ files:scan --all          (after hand-copying
+                                       files into the data
+                                       folder — chapter 15)

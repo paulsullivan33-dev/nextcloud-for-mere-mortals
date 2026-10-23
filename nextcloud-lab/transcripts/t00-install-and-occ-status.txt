@@ -1,0 +1,42 @@
+$ curl -sL -o nextcloud-latest.tar.bz2 \
+    https://download.nextcloud.com/server/releases/latest.tar.bz2
+$ sha256sum nextcloud-latest.tar.bz2
+dfc7955eaec5621de90e031d10f76006173b3f3e31d5d6e174821d1da14f162d  nextcloud-latest.tar.bz2
+$ cat latest.tar.bz2.sha256        (published by the project, same page)
+dfc7955eaec5621de90e031d10f76006173b3f3e31d5d6e174821d1da14f162d  latest.tar.bz2
+(the two hashes match)
+
+$ grep OC_VersionString nextcloud/version.php      (after unpacking)
+$OC_VersionString = '35.0.2';
+
+$ mysql -uroot -e "CREATE DATABASE nextcloud CHARACTER SET utf8mb4;
+  CREATE USER 'nextcloud'@'127.0.0.1' IDENTIFIED BY '<redacted>';
+  GRANT ALL ON nextcloud.* TO 'nextcloud'@'127.0.0.1';"
+
+$ php occ maintenance:install --database mysql \
+    --database-name nextcloud --database-host 127.0.0.1 \
+    --database-user nextcloud --database-pass '<redacted>' \
+    --admin-user ruth --admin-pass '<redacted>' \
+    --data-dir /home/hatch/workspace/nextcloud-lab/data
+Nextcloud was successfully installed
+
+$ php occ config:system:set trusted_domains 1 --value=127.0.0.1
+System config value trusted_domains => 1 set to string 127.0.0.1
+
+$ php occ status
+  - installed: true
+  - version: 35.0.2.2
+  - versionstring: 35.0.2
+  - edition:
+  - maintenance: false
+  - needsDbUpgrade: false
+  - productname: Nextcloud
+  - extendedSupport: false
+
+$ php occ check && echo CLEAN
+CLEAN
+
+$ curl -s http://127.0.0.1:8090/status.php
+{"installed":true,"maintenance":false,"needsDbUpgrade":false,
+ "version":"35.0.2.2","versionstring":"35.0.2","edition":"",
+ "productname":"Nextcloud","extendedSupport":false}

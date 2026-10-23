@@ -1,0 +1,28 @@
+site_name: Nextcloud for Mere Mortals
+site_description: Plain-language self-hosted file sync and sharing with Nextcloud. Files, photos, calendar, and contacts on a server in your own house, the install done by hand, WebDAV proven end to end, sharing and public links exercised for real, and the backup that is a database plus a folder of files.
+site_url: https://paulsullivan33-dev.github.io/nextcloud-for-mere-mortals/
+
+# Guides live at the repo root (nice for GitHub browsing).
+# The deploy workflow copies them into docs/ before building.
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - What Nextcloud Is: what-nextcloud-is.md
+  - The Moving Parts: the-moving-parts.md
+  - Installing on a Server: installing-on-a-server.md
+  - First Login and Settings: first-login-and-settings.md
+  - Files Every Day: files-every-day.md
+  - WebDAV the Door Everything Uses: webdav-the-door.md
+  - Calendar Contacts and the Everyday Apps: calendar-contacts-and-apps.md
+  - Sharing With People and Links: sharing-with-people-and-links.md
+  - Users Groups and Admin: users-groups-and-admin.md
+  - The occ Toolkit: the-occ-toolkit.md
+  - Backing Up: backing-up.md
+  - Recipes: recipes.md
+  - The Neighbours: the-neighbours.md
+  - Limits: limits.md
+  - Troubleshooting: troubleshooting.md
+  - Glossary: glossary.md
+  - Writing Criteria: criteria.md

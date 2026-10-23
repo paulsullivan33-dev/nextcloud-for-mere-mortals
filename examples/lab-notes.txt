@@ -1,0 +1,97 @@
+The lab — a real server, a borrowed web server,
+and one reboot nobody ordered
+====================================================================
+
+The lab is the project's own release, installed
+the plain way:
+
+  * Nextcloud 35.0.2, the current stable release
+    on build day, downloaded as latest.tar.bz2
+    from download.nextcloud.com; its SHA-256
+    matched the project's published checksum
+    exactly (dfc7955e…f162d — transcript t00).
+  * PHP 8.3.6 and MariaDB 10.11.14, the build
+    machine's own packages. Tar refused to set
+    the archive's nobody ownership inside the
+    sandbox user namespace, so the unpack used
+    --no-same-owner; the files are unaffected.
+  * Served by PHP's built-in web server on
+    127.0.0.1:8090 with six worker processes.
+    There is no Apache or nginx in the sandbox,
+    so the lab's addresses carry index.php in
+    them, and one pretty address (/apps/files/
+    without it) answers 404 because a real
+    folder of that name sits in the way — both
+    declared in chapter 3, and the second one
+    is a troubleshooting entry in chapter 15.
+    Everything functional — login, WebDAV,
+    CalDAV, sharing — ran over this server.
+
+Midway through the build, the sandbox machine
+rebooted and its system disk returned to the
+factory image: PHP, MariaDB, and the lab's
+database vanished between one command and the
+next. The workspace disk — the release, the
+fixtures, and crucially the Nextcloud data
+folder — survived untouched. The lab was
+rebuilt (packages reinstalled, database
+recreated, a fresh install into a fresh data
+folder) and the ENTIRE proof suite was run
+again, start to finish, on the rebuilt server;
+every transcript in nextcloud-lab/transcripts/
+is from that second, complete run. The first
+run's data folder is kept in the lab as
+data-run1, and its files — the uploaded notes,
+the trashed recipe, the kept version — are
+still sitting in it, readable, which is the
+backup chapter's whole argument made by
+accident: the folder of files is the half
+that survives.
+
+What the lab did, in one breath: installed
+from occ; set a trusted domain; logged the
+admin in through the real web form (after
+learning the Origin-header lesson, t01);
+uploaded two files over WebDAV and downloaded
+one back to an identical SHA-256 (t02); made
+a second account with occ and shared a file
+to it through the OCS API, watching it appear
+in the recipient's home (t03); minted a
+public link and fetched the file back,
+unauthenticated, byte-identical (t04); put a
+calendar event in over CalDAV and read it
+back (t05); overwrote a file and found its
+old self in the versions store, deleted it
+and found both in the trash (t06); and ran
+the integrity check, the setup checks, a full
+cron pass, and a database dump that was
+opened and inspected (t07).
+
+The lab's honest negatives, repeated in the
+chapters where they belong:
+
+  * No Docker. The sandbox kernel refuses the
+    calls container runtimes need, so the
+    All-in-One and compose routes are the
+    project's documentation, labelled as such.
+  * No phone or desktop client was run. The
+    clients speak WebDAV and CalDAV to the
+    same doors the lab proved with curl;
+    chapter 6 says exactly that.
+  * No restore was rehearsed. Chapter 11
+    teaches the documented procedure and the
+    database-plus-folder distinction the
+    lab's own reboot demonstrated.
+  * No mail arrived anywhere: the "welcome
+    email sent" line occ prints is the sound
+    of a letter dropped in a box with no
+    postman. Accounts work; delivery awaits
+    a configured mail server.
+
+Every fixture is invented: the admin (Ruth
+Calloway, ruth@example.com), the second user
+(Theo Marchetti, theo@example.com), the
+recipes and book-club notes, and the calendar
+entry were made on the build machine for this
+guide. Passwords and the share token are
+redacted in every transcript.

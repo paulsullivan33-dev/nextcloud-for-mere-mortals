@@ -1,0 +1,28 @@
+CalDAV is WebDAV's sibling for calendars, served by the
+same dav machinery — no extra app was installed for this.
+(C=http://127.0.0.1:8090/remote.php/dav/calendars/ruth)
+
+$ curl -u ruth:<redacted> -X PROPFIND -H "Depth: 1" $C/
+(names only)
+personal/            (the default calendar)
+contact_birthdays/   (birthdays from contacts, automatic)
+inbox/  outbox/      (scheduling plumbing)
+trashbin/            (deleted events rest here)
+
+$ curl -u ruth:<redacted> -T book-club-dinner.ics \
+    -H "Content-Type: text/calendar" \
+    $C/personal/book-club-dinner-20261114.ics
+HTTP 201      (event created)
+
+The .ics file that went up is a plain text calendar entry:
+BEGIN:VEVENT
+UID:book-club-dinner-20261114@lab.example
+DTSTART:20261114T190000Z
+DTEND:20261114T213000Z
+SUMMARY:Book club dinner at Ruth's place
+END:VEVENT
+
+$ curl -u ruth:<redacted> $C/personal/book-club-dinner-20261114.ics
+HTTP 200, and inside the returned entry:
+DTSTART:20261114T190000Z
+SUMMARY:Book club dinner at Ruth's place

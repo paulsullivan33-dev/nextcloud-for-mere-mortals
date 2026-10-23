@@ -1,0 +1,28 @@
+A public link is a share whose "user" is a secret token
+(shareType=3). Anything holding the link can use it —
+there is no login. Created through the same OCS API:
+
+$ curl -u ruth:<redacted> -H "OCS-APIRequest: true" \
+    -H "Accept: application/json" -X POST \
+    http://127.0.0.1:8090/ocs/v2.php/apps/files_sharing/api/v1/shares \
+    --data-urlencode "path=/book-club-notes.txt" \
+    --data-urlencode "shareType=3"
+ocs.meta: ok 200
+data.id: 2
+data.token: <redacted — the token is a password in a URL>
+data.url: http://127.0.0.1:8090/index.php/s/<token>
+
+Fetched with no credentials at all (fresh curl, no -u,
+no cookies):
+
+$ curl -s http://127.0.0.1:8090/s/<token>
+HTTP 200 — a public page titled "book-club-notes.txt"
+
+$ curl -sL http://127.0.0.1:8090/s/<token>/download -o pub-download.txt
+HTTP 200, 212 bytes
+(the /download address answers 303 first; -L follows it)
+
+$ sha256sum book-club-notes.txt pub-download.txt
+68a590c57e19b32d86044a39f4ab18dea160ff704bc7bcdd3bf26923d8d58c67  book-club-notes.txt
+68a590c57e19b32d86044a39f4ab18dea160ff704bc7bcdd3bf26923d8d58c67  pub-download.txt
+(byte-identical, fetched by an anonymous stranger)

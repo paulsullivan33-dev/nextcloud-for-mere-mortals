@@ -1,0 +1,41 @@
+The maintenance commands, run against the lab server:
+
+$ php occ integrity:check-core
+(exit 0, no complaints — the installed code matches the
+project's signed release)
+
+$ php occ background:cron
+Set mode for background jobs to 'cron'
+$ php cron.php
+(exit 0 — one full pass of the housekeeping jobs:
+ tidying, expiring, notifying. The admin page's
+ "last job ran seconds ago" line agrees.)
+
+$ php occ setupchecks        (the admin settings page, as text)
+✓ Cron last run: Last background job execution ran seconds ago.
+✓ Debug mode: Debug mode is disabled.
+✓ Architecture: 64-bit
+⚠ Maintenance window start: Server has no maintenance window
+  start time configured. ... We recommend to set it to a
+  time of low usage ...
+⚠ Mimetype migrations available: One or more mimetype
+  migrations are available. ... Use the command
+  `occ maintenance:repair --include-expensive` ...
+⚠ Data directory protected: Could not check that the data
+  directory is protected. ...
+(exit 1 while any ⚠ stands — the check list is a to-do
+list, not a verdict; chapter 4 walks the honest ones)
+
+The backup half that fits in one command — the database:
+
+$ mysqldump -uroot --single-transaction nextcloud > nextcloud.sql
+901,186 bytes
+$ grep -c "CREATE TABLE" nextcloud.sql
+138
+$ grep -o "book-club-notes.txt" nextcloud.sql | head -1
+book-club-notes.txt
+$ grep -o "pancake-recipe.txt" nextcloud.sql | head -1
+pancake-recipe.txt
+(the dump knows every file's name, owner, and share —
+ the other half of a backup is the data folder itself;
+ chapter 11 puts the two together, in the right order)

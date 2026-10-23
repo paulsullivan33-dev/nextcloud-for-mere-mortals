@@ -1,0 +1,37 @@
+# The Docker route, in the shape of the project's own
+# examples. DOCUMENTED ONLY in this guide: the lab had
+# no container runtime, so this file was read against
+# the project documentation, not run. The route the
+# project itself pushes first is the All-in-One image
+# (nextcloud/all-in-one), which manages containers of
+# its own; this plainer two-service file is the shape
+# to learn the moving parts from — it is chapter 2
+# with the names filled in.
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: <choose one>
+      MYSQL_ROOT_PASSWORD: <choose another>
+    volumes:
+      - db:/var/lib/mysql
+
+  app:
+    image: nextcloud:35
+    ports:
+      - "8080:80"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: <the same one>
+    volumes:
+      - html:/var/www/html   # code, config, and data
+    depends_on:
+      - db
+
+volumes:
+  db:
+  html:

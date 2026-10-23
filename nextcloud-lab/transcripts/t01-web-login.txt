@@ -1,0 +1,34 @@
+The login page is a form. A browser sends three things
+with it that curl does not send by itself: the cookies it
+was given, the page's request token, and an Origin header
+naming the site the form came from. Leave the Origin out
+and the server refuses the attempt (see chapter 15):
+
+$ curl -s -c cookies.txt http://127.0.0.1:8090/index.php/login
+(login page saved; it carries data-requesttoken="..." )
+
+$ curl -s -b cookies.txt -c cookies.txt \
+    --data-urlencode "user=ruth" \
+    --data-urlencode "password=<redacted>" \
+    --data-urlencode "requesttoken=$RT" \
+    http://127.0.0.1:8090/index.php/login
+HTTP 303, back to /index.php/login?user=ruth&direct=1
+(no login token exists afterwards — the attempt failed)
+
+The same POST with the Origin header a browser would send:
+
+$ curl -s -b cookies.txt -c cookies.txt \
+    -H "Origin: http://127.0.0.1:8090" \
+    --data-urlencode "user=ruth" \
+    --data-urlencode "password=<redacted>" \
+    --data-urlencode "requesttoken=$RT" \
+    http://127.0.0.1:8090/index.php/login
+HTTP 303, redirect: http://127.0.0.1:8090/index.php/apps/dashboard/
+
+$ curl -s -b cookies.txt http://127.0.0.1:8090/index.php/apps/files/
+HTTP 200, and the page carries: data-user="ruth"
+
+$ mysql -uroot nextcloud -e "SELECT uid, name, type FROM oc_authtoken;"
+uid     name            type
+ruth    curl/8.5.0      0
+(the login created a real session token, named after the client)
